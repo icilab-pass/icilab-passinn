@@ -139,7 +139,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
 /* Marca / monograma */
 .mark{flex:none;display:grid;place-items:center;font-family:var(--display);font-weight:800;color:#fff;overflow:hidden}
-.mark img{width:100%;height:100%;object-fit:contain;background:#fff}
+.mark img{width:100%;height:100%;object-fit:contain;background:#fff;padding:7%}
 
 /* Herramientas */
 .tools{display:flex;flex-wrap:wrap;gap:16px;align-items:end;justify-content:space-between;padding-block:40px 22px}
@@ -339,27 +339,24 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-betw
 
 <script>
 /* ============================================================
-   LISTA DE EMPRENDIMIENTOS (datos de ejemplo — reemplazar)
+   LISTA DE EMPRENDIMIENTOS
    nombre:  nombre del emprendimiento
    sector:  a qué se dedica
    drive:   enlace a la carpeta de Google Drive ("" = en preparación)
    logo:    ruta de la imagen, ej. "img/logos/cafe.png" (opcional; si falta, se usan las iniciales)
+   fondo:   color del cuadro detrás del logo (opcional; blanco por defecto)
    color:   color del monograma cuando no hay logo
    piezas:  lo que incluye el paquete
    ============================================================ */
 const EMPRENDIMIENTOS = [
-  { nombre:"Café La Montaña", sector:"Café de origen", drive:"https://drive.google.com/", color:"#6b3f1f",
-    piezas:["Logo PNG/PDF","12 posts","4 historias","Portada FB"] },
-  { nombre:"Arepas Doña Rosa", sector:"Gastronomía", drive:"https://drive.google.com/", color:"#c2410c",
-    piezas:["10 posts","Menú digital","Plantillas historias"] },
-  { nombre:"Tejidos Wayuu Kasa", sector:"Artesanías", drive:"https://drive.google.com/", color:"#9d174d",
-    piezas:["Manual de marca","8 posts","Catálogo PDF"] },
-  { nombre:"Verde Huerta", sector:"Agricultura orgánica", drive:"", color:"#3f7d20",
-    piezas:["Logo","Paleta de color","6 posts"] },
-  { nombre:"Bici Andina", sector:"Turismo y ciclismo", drive:"https://drive.google.com/", color:"#1d4ed8",
-    piezas:["12 posts","Reel","Portada YouTube"] },
-  { nombre:"Dulce Panela", sector:"Agroindustria", drive:"", color:"#a16207",
-    piezas:["Etiqueta","8 posts","Tarjeta"] },
+  { nombre:"Jhon del Valle", sector:"Café tostado", color:"#43281c",
+    drive:"https://drive.google.com/drive/folders/1f8R9u9HudFosBoO5caWAMaNe7NSjKO-l?usp=sharing",
+    logo:"img/logos/jhon-del-valle.png", fondo:"#43281c",
+    piezas:["Plantilla para reels","Carrusel","Historias","Tienda virtual en Canva","Parrilla de contenidos"] },
+  { nombre:"Apinany", sector:"Miel de abeja orgánica", color:"#6b4226",
+    drive:"https://drive.google.com/drive/folders/1-gOYN4twwpkvrMzh-0JkJPv6k3GHzTlH?usp=drive_link",
+    logo:"img/logos/apinany.png", fondo:"#48321f",
+    piezas:["Plantilla para reels","Carrusel","Historias","Tienda virtual en Canva","Parrilla de contenidos"] },
 ];
 
 /* CONTACTO para quien no pueda abrir su paquete ("" = no se muestra)
@@ -374,7 +371,7 @@ const plano = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
 const slug = s => plano(s).replace(/[^a-z0-9]+/g,"-");
 const iniciales = n => n.split(/\s+/).filter(w => w.length > 2 || /^[A-ZÁÉÍÓÚÑ]/.test(w)).slice(0,2).map(w => w[0]).join("").toUpperCase();
 const mark = e => e.logo
-  ? `<span class="mark"><img src="${esc(e.logo)}" alt="Logo de ${esc(e.nombre)}"></span>`
+  ? `<span class="mark"><img src="${esc(e.logo)}" alt="Logo de ${esc(e.nombre)}" style="background:${esc(e.fondo || "#fff")}"></span>`
   : `<span class="mark" style="background:linear-gradient(135deg,${esc(e.color || "#0a7cc2")},#04374f)" aria-hidden="true">${esc(iniciales(e.nombre))}</span>`;
 const listos = EMPRENDIMIENTOS.filter(e => e.drive).length;
 
@@ -383,7 +380,11 @@ const chips = EMPRENDIMIENTOS.map(e => {
   const href = e.drive ? `href="${esc(e.drive)}" target="_blank" rel="noopener"` : `href="#e-${slug(e.nombre)}"`;
   return `<a class="chip" ${href}>${mark(e)}${esc(e.nombre)}</a>`;
 }).join("");
-$("#track").innerHTML = chips + chips.replace(/<a /g, '<a aria-hidden="true" tabindex="-1" ');
+/* Repite los logos hasta llenar la cinta; las copias se ocultan a lectores de pantalla */
+const copia = chips.replace(/<a /g, '<a aria-hidden="true" tabindex="-1" ');
+const vueltas = Math.max(1, Math.ceil(10 / EMPRENDIMIENTOS.length));
+const mitad = chips + copia.repeat(vueltas - 1);
+$("#track").innerHTML = mitad + copia.repeat(vueltas);
 
 /* Tarjetas */
 function render(q = ""){
