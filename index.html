@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pass.inn Paquetes de Marca</title>
+<meta name="description" content="Encuentra el logo de tu emprendimiento y abre en Google Drive tu paquete de redes sociales, preparado por ICI.lab del SENA.">
+<meta name="theme-color" content="#04374f">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<!-- Vista previa al compartir (WhatsApp, Facebook, LinkedIn). og:image y og:url deben ser direcciones completas -->
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_CO">
+<meta property="og:site_name" content="Pass.inn · ICI.lab SENA">
+<meta property="og:title" content="Pass.inn · Tu paquete de redes sociales">
+<meta property="og:description" content="Tu marca está lista. Encuentra tu logo y descarga tus piezas gráficas desde Google Drive.">
+<meta property="og:url" content="https://icilab-pass.github.io/icilab-passinn/">
+<meta property="og:image" content="https://icilab-pass.github.io/icilab-passinn/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: laboratorio nocturno. Canvas de partículas a pantalla completa detrás de todo,
+   barra flotante con logos, hero con título en degradado ICI y mascota holográfica,
+   banner de logos tipo cinta, rejilla de tarjetas de vidrio con brillo que sigue el cursor.
+   Diseño deliberadamente oscuro en ambos temas. */
+:root{
+  color-scheme:dark;
+  --bg:#050f17; --bg-2:#08202e; --glass:rgba(14,40,56,.55); --glass-line:rgba(140,220,255,.14);
+  --fg:#e8f3f8; --muted:#8eaaba; --dim:#56717f;
+  --yellow:#fcd40c; --green:#5fc12a; --blue:#0a7cc2; --navy:#04374f;
+  --grad:linear-gradient(100deg,#fcd40c 0%,#8fd12b 30%,#3fae4a 55%,#0a7cc2 100%);
+  --pending:#f0b45a;
+  --display:"Syne","Avenir Next",system-ui,sans-serif;
+  --body:"Manrope","Helvetica Neue",Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+img{max-width:100%}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;overflow-x:hidden}
+.wrap{max-width:1160px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));position:relative}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+a{color:inherit}
+
+/* Fondo vivo */
+#net{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.gridbg{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(120,200,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(120,200,255,.05) 1px,transparent 1px);
+  background-size:56px 56px;mask-image:radial-gradient(ellipse 90% 70% at 50% 20%,#000 30%,transparent 80%)}
+.glow{position:fixed;z-index:0;pointer-events:none;border-radius:50%;filter:blur(90px);opacity:.35}
+.glow.a{width:520px;height:520px;background:#0a7cc2;top:-160px;right:-120px}
+.glow.b{width:420px;height:420px;background:#3fae4a;top:340px;left:-180px;opacity:.22}
+.page{position:relative;z-index:1}
+
+/* Barra superior */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;padding-block:14px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  background:rgba(255,255,255,.96);border-radius:18px;padding:10px 18px;box-shadow:0 10px 40px -12px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.4)}
+.bar img{display:block;height:auto}
+.bar .ici{width:clamp(96px,16vw,150px)}
+.bar .pass{width:clamp(130px,20vw,190px)}
+
+/* Hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:24px;align-items:center;padding-block:40px 24px}
+.tag{font-family:var(--mono);font-size:.78rem;color:var(--green);letter-spacing:.04em;display:inline-flex;gap:8px;align-items:center}
+.tag::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green);animation:blink 1.6s steps(2) infinite}
+@keyframes blink{50%{opacity:.25}}
+.hero h1{font-size:clamp(2.3rem,6.2vw,4.6rem);line-height:.98;font-weight:800;letter-spacing:-.025em;margin-top:16px}
+.hero h1 .g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:200% 100%;animation:shine 8s ease-in-out infinite}
+@keyframes shine{50%{background-position:100% 0}}
+.hero h1 .dec{font-family:var(--mono);font-weight:500;font-size:.78em;letter-spacing:-.04em;color:var(--fg)}
+.hero p{max-width:52ch;color:var(--muted);font-size:1.06rem;margin:18px 0 0}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.cta a{display:inline-flex;align-items:center;gap:10px;padding:13px 20px;border-radius:12px;text-decoration:none;font-weight:700;font-size:.95rem}
+.cta .pri{background:var(--grad);color:#04202e;box-shadow:0 0 30px -6px rgba(95,193,42,.7)}
+.cta .sec{border:1px solid var(--glass-line);color:var(--fg);background:var(--glass);backdrop-filter:blur(8px)}
+.cta a:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
+
+/* Mascota holográfica */
+.holo{position:relative;justify-self:center;width:min(100%,330px);aspect-ratio:1/1.15;display:grid;place-items:center}
+.holo .ring{position:absolute;border-radius:50%;border:1px solid rgba(95,193,42,.45)}
+.holo .r1{inset:8% 4%;animation:spin 22s linear infinite;border-style:dashed}
+.holo .r2{inset:18% 14%;border-color:rgba(10,124,194,.6);animation:spin 14s linear infinite reverse;border-top-color:var(--yellow)}
+.holo .base{position:absolute;bottom:4%;left:18%;right:18%;height:22px;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(95,193,42,.7),transparent);filter:blur(4px)}
+/* Mascota por poses: .pet sigue el cursor, .mov hace saltos y vuelos, .resp respira, cada img es una pose */
+.pet{position:relative;width:54%;aspect-ratio:.5;cursor:pointer;border:0;padding:0;background:none;
+  transition:transform .15s linear;animation:llega 1.4s cubic-bezier(.2,.9,.3,1.2) both}
+.pet:focus-visible{outline:2px dashed var(--yellow);outline-offset:8px;border-radius:20px}
+.mov,.resp{position:absolute;inset:0;transform-origin:50% 100%}
+.resp{animation:respira 3.2s ease-in-out infinite}
+.pose{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:50% 100%;
+  opacity:0;transform:scale(.94);transition:opacity .09s linear,transform .18s cubic-bezier(.3,1.8,.5,1);
+  filter:drop-shadow(0 0 22px rgba(10,124,194,.55))}
+.pose.on{opacity:1;transform:none}
+.pose.flip{transform:scaleX(-1) scale(.94)}
+.pose.flip.on{transform:scaleX(-1)}
+.pose.cerca{object-position:50% 85%}
+.pet:hover .pose{filter:drop-shadow(0 0 30px rgba(95,193,42,.8))}
+.mov.hop{animation:hop .45s cubic-bezier(.3,1.5,.5,1) 2}
+.mov.salta{animation:salto .9s cubic-bezier(.3,1.6,.5,1)}
+.mov.vuela{animation:vuela 2.6s cubic-bezier(.45,0,.4,1)}
+.mov.baila{animation:baila .4s ease-in-out 4}
+@keyframes respira{50%{transform:translateY(-6px) scale(1.012,.988)}}
+@keyframes llega{0%{transform:translate(120%,-60%) rotate(25deg) scale(.4);opacity:0}70%{opacity:1}100%{transform:none}}
+@keyframes hop{0%,100%{transform:none}30%{transform:scale(1.08,.9)}60%{transform:translateY(-26px) scale(.95,1.06)}}
+@keyframes salto{0%{transform:none}25%{transform:translateY(8px) scale(1.08,.9)}55%{transform:translateY(-50px) rotate(-10deg) scale(.96,1.06)}80%{transform:translateY(0) scale(1.05,.95)}100%{transform:none}}
+@keyframes vuela{0%{transform:none}15%{transform:translate(-30px,-70px) rotate(-12deg)}35%{transform:translate(-170px,-110px) rotate(-18deg)}
+  55%{transform:translate(-230px,-10px) rotate(4deg) scale(.85)}75%{transform:translate(-110px,40px) rotate(14deg) scale(.92)}90%{transform:translate(0,-30px) rotate(6deg)}100%{transform:none}}
+@keyframes baila{0%,100%{transform:rotate(0)}25%{transform:rotate(-7deg) translateY(-4px)}75%{transform:rotate(7deg) translateY(-4px)}}
+@media (max-width:760px){@keyframes vuela{0%,100%{transform:none}30%{transform:translate(-90px,-60px) rotate(-14deg)}60%{transform:translate(-140px,10px) scale(.85)}85%{transform:translate(-30px,-20px) rotate(8deg)}}}
+.say{position:absolute;top:-2%;left:50%;z-index:2;max-width:210px;padding:9px 13px;border-radius:14px 14px 14px 4px;
+  background:#ffffff;color:#04374f;font-weight:700;font-size:.85rem;line-height:1.3;box-shadow:0 10px 30px -8px rgba(0,0,0,.6);
+  opacity:0;transform:translateY(8px) scale(.9);transform-origin:0 100%;transition:opacity .25s,transform .25s;pointer-events:none}
+.say.on{opacity:1;transform:none}
+@media (max-width:760px){.say{left:auto;right:55%;border-radius:14px 14px 4px 14px;transform-origin:100% 100%}}
+.holo .lbl{position:absolute;font-family:var(--mono);font-size:.68rem;color:var(--muted);background:rgba(5,15,23,.7);border:1px solid var(--glass-line);padding:3px 8px;border-radius:6px}
+.holo .l1{top:12%;left:0}.holo .l2{bottom:20%;right:0;color:var(--yellow)}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes float{50%{transform:translateY(-12px) rotate(-2deg)}}
+
+/* Cinta de logos */
+.ribbon{margin-block:28px 8px;border-block:1px solid var(--glass-line);background:rgba(8,32,46,.5);backdrop-filter:blur(6px);overflow:hidden;
+  mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.track{display:flex;gap:12px;width:max-content;padding-block:14px;animation:slide 45s linear infinite}
+.ribbon:hover .track{animation-play-state:paused}
+@keyframes slide{to{transform:translateX(-50%)}}
+.chip{display:flex;align-items:center;gap:10px;padding:6px 16px 6px 6px;border-radius:999px;border:1px solid var(--glass-line);
+  background:rgba(255,255,255,.04);text-decoration:none;font-weight:600;white-space:nowrap;transition:border-color .2s,box-shadow .2s}
+.chip:hover,.chip:focus-visible{border-color:var(--green);box-shadow:0 0 18px -4px var(--green);outline:none}
+.chip .mark{width:34px;height:34px;font-size:.66rem;letter-spacing:-.02em;border-radius:50%}
+
+/* Marca / monograma */
+.mark{flex:none;display:grid;place-items:center;font-family:var(--display);font-weight:800;color:#fff;overflow:hidden}
+.mark img{width:100%;height:100%;object-fit:contain;background:#fff}
+
+/* Herramientas */
+.tools{display:flex;flex-wrap:wrap;gap:16px;align-items:end;justify-content:space-between;padding-block:40px 22px}
+.tools .k{font-family:var(--mono);font-size:.75rem;color:var(--dim)}
+.tools h2{font-size:clamp(1.5rem,3vw,2rem);font-weight:700;margin-top:4px}
+.count{font-family:var(--mono);font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:6px}
+.count b{color:var(--green);font-weight:500}
+.search{flex:1 1 260px;max-width:400px;position:relative}
+.search input{width:100%;font:inherit;font-family:var(--mono);font-size:.92rem;padding:14px 14px 14px 44px;border-radius:12px;
+  border:1px solid var(--glass-line);background:var(--glass);color:var(--fg);backdrop-filter:blur(8px)}
+.search input::placeholder{color:var(--dim)}
+.search input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(95,193,42,.2),0 0 24px -6px var(--green)}
+.search .p{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-family:var(--mono);color:var(--green)}
+
+/* Tarjetas */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:18px;padding-bottom:56px;perspective:1000px}
+.card{--mx:50%;--my:50%;position:relative;display:flex;flex-direction:column;gap:16px;padding:22px;border-radius:20px;min-width:0;
+  background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(10px);
+  transition:transform .25s ease,border-color .25s;transform-style:preserve-3d;isolation:isolate}
+.card::before{content:"";position:absolute;inset:0;border-radius:inherit;z-index:-1;opacity:0;transition:opacity .3s;
+  background:radial-gradient(420px circle at var(--mx) var(--my),rgba(95,193,42,.18),transparent 45%)}
+.card::after{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;pointer-events:none;opacity:0;transition:opacity .3s;
+  background:radial-gradient(260px circle at var(--mx) var(--my),#fcd40c,#5fc12a 40%,transparent 70%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.card:hover::before,.card:hover::after{opacity:1}
+.id{font-family:var(--mono);font-size:.7rem;color:var(--dim);display:flex;justify-content:space-between}
+.card-head{display:flex;gap:14px;align-items:center;min-width:0}
+.card .mark{width:62px;height:62px;font-size:1.3rem;border-radius:16px;box-shadow:0 0 0 1px rgba(255,255,255,.15),0 8px 24px -8px rgba(0,0,0,.6)}
+.card h3{font-size:1.15rem;font-weight:700;line-height:1.15}
+.sector{color:var(--muted);font-size:.88rem}
+.items{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}
+.items li{font-family:var(--mono);font-size:.72rem;padding:4px 9px;border-radius:6px;background:rgba(10,124,194,.14);border:1px solid rgba(10,124,194,.3);color:#bfe3f7}
+.foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:6px;border-top:1px dashed var(--glass-line)}
+.status{font-family:var(--mono);font-size:.72rem;display:inline-flex;align-items:center;gap:7px;padding-top:10px}
+.status::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 10px currentColor}
+.status.ok{color:var(--green)}
+.status.wait{color:var(--pending)}
+.btn{display:inline-flex;align-items:center;gap:8px;margin-top:10px;padding:10px 15px;border-radius:11px;background:var(--grad);color:#04202e;
+  text-decoration:none;font-weight:700;font-size:.9rem;transition:box-shadow .2s,transform .2s}
+.btn:hover{box-shadow:0 0 26px -4px rgba(95,193,42,.8);transform:translateY(-1px)}
+.btn:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
+.btn.off{background:rgba(240,180,90,.1);color:var(--pending);border:1px solid rgba(240,180,90,.3);pointer-events:none}
+.empty{grid-column:1/-1;text-align:center;color:var(--muted);font-family:var(--mono);padding:40px 0}
+
+/* Aviso de acceso privado */
+.aviso{display:flex;gap:10px;align-items:flex-start;max-width:52ch;margin:18px 0 0;padding:12px 14px;border-radius:12px;font-size:.92rem;line-height:1.45;
+  background:rgba(252,212,12,.08);border:1px solid rgba(252,212,12,.3);color:var(--fg)}
+.aviso svg{flex:none;color:var(--yellow);margin-top:1px}
+.aviso b{color:var(--yellow)}
+
+/* Cómo descargar */
+.como{padding-block:16px 56px;scroll-margin-top:110px}
+.como .k{font-family:var(--mono);font-size:.75rem;color:var(--dim)}
+.como h2{font-size:clamp(1.5rem,3vw,2rem);font-weight:700;margin-top:4px}
+.pasos{list-style:none;margin:22px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.pasos li{position:relative;padding:20px 20px 20px 70px;border-radius:18px;background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(10px);min-width:0}
+.pasos .n{position:absolute;left:18px;top:18px;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;
+  font-family:var(--mono);font-weight:500;color:#04202e;background:var(--grad);box-shadow:0 0 22px -6px rgba(95,193,42,.8)}
+.pasos h3{font-size:1.05rem;font-weight:700}
+.pasos p{margin:6px 0 0;color:var(--muted);font-size:.93rem}
+.pasos b,.ayuda b{color:var(--fg)}
+.ayuda{margin-top:16px;padding:20px;border-radius:18px;border:1px dashed rgba(240,180,90,.45);background:rgba(240,180,90,.06)}
+.ayuda-t{display:flex;align-items:center;gap:10px;color:var(--pending)}
+.ayuda-t h3{font-size:1.05rem;font-weight:700;color:var(--fg)}
+.ayuda ul{margin:12px 0 0;padding-left:20px;display:grid;gap:8px;color:var(--muted);font-size:.93rem}
+.ayuda a{color:var(--green);font-weight:700}
+.copiar{font:inherit;font-size:.8rem;font-family:var(--mono);margin-left:6px;padding:2px 8px;border-radius:6px;cursor:pointer;
+  background:rgba(95,193,42,.12);border:1px solid rgba(95,193,42,.4);color:var(--green)}
+
+footer{border-top:1px solid var(--glass-line);color:var(--dim);font-size:.85rem;padding-block:24px;background:rgba(5,15,23,.7)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between}
+
+@media (max-width:760px){
+  .top{position:relative;top:0}
+  .hero{grid-template-columns:1fr;padding-top:24px}
+  .holo{width:220px;order:-1;justify-self:end;margin-bottom:-40px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .ribbon{overflow-x:auto;mask-image:none}.track{padding-inline:16px}.track > [aria-hidden="true"]{display:none}
+}
+</style>
+
+</head>
+<body>
+
+<canvas id="net" aria-hidden="true"></canvas>
+<div class="gridbg" aria-hidden="true"></div>
+<div class="glow a" aria-hidden="true"></div>
+<div class="glow b" aria-hidden="true"></div>
+
+<div class="page">
+  <div class="top">
+    <div class="wrap">
+      <div class="bar">
+        <img class="ici" src="img/ici-lab.png" alt="ICI.lab, Laboratorio de Innovación y Emprendimiento Agroempresarial" width="900" height="354">
+        <img class="pass" src="img/passinn.png" alt="Pass.inn, Pasaporte a la innovación" width="900" height="240">
+      </div>
+    </div>
+  </div>
+
+  <header class="wrap hero">
+    <div>
+      <span class="tag">ICI.lab · laboratorio creativo · SENA</span>
+      <h1>Tu marca está lista.<br><span class="g">Ahora:</span> <span class="dec" id="dec">Idea_</span></h1>
+      <p>Diseñamos el paquete de redes sociales de tu emprendimiento. Encuentra tu logo, haz clic y descarga desde Google Drive tus piezas gráficas, publicaciones y archivos de marca.</p>
+      <p class="aviso">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        <span><b>Tu paquete es privado.</b> Ábrelo con el correo que registraste en el programa.</span>
+      </p>
+      <div class="cta">
+        <a class="pri" href="#emprendimientos">Buscar mi emprendimiento
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></a>
+        <a class="sec" href="#como">¿Cómo descargo?</a>
+      </div>
+    </div>
+    <div class="holo" aria-hidden="false">
+      <span class="ring r1"></span><span class="ring r2"></span><span class="base"></span>
+      <span class="say" id="say" role="status"></span>
+      <button class="pet" id="pet" type="button" aria-label="Saludar a la mascota de Pass.inn, una guacamaya con morral del SENA">
+        <span class="mov" id="mov"><span class="resp">
+          <img class="pose on" data-p="frente" src="img/pose-frente.png" alt="" width="250" height="500">
+          <img class="pose" data-p="izq" src="img/pose-izq.png" alt="" width="228" height="470">
+          <img class="pose" data-p="der" src="img/pose-der.png" alt="" width="226" height="470">
+          <img class="pose" data-p="lado" src="img/pose-lado.png" alt="" width="270" height="500">
+          <img class="pose flip" data-p="lado-izq" src="img/pose-lado.png" alt="" width="270" height="500">
+          <img class="pose" data-p="espalda" src="img/pose-espalda.png" alt="" width="215" height="510">
+          <img class="pose cerca" data-p="guino" src="img/pose-guino.png" alt="" width="262" height="378">
+          <img class="pose" data-p="vuelo" src="img/mascota.png" alt="" width="270" height="450">
+        </span></span>
+      </button>
+      <span class="lbl l1">pass.inn // guía</span>
+      <span class="lbl l2" id="pct">paquetes: 0%</span>
+    </div>
+  </header>
+
+  <div class="ribbon" aria-label="Emprendimientos participantes">
+    <div class="track" id="track"></div>
+  </div>
+
+  <main class="wrap" id="emprendimientos">
+    <div class="tools">
+      <div>
+        <div class="k">/emprendimientos</div>
+        <h2>Encuentra tu paquete</h2>
+        <div class="count" id="count"></div>
+      </div>
+      <label class="search" for="q">
+        <span class="p" aria-hidden="true">&gt;</span>
+        <input id="q" type="search" placeholder="buscar nombre o sector…" autocomplete="off" aria-label="Buscar emprendimiento">
+      </label>
+    </div>
+    <section class="grid" id="grid" aria-live="polite"></section>
+  </main>
+
+  <section class="wrap como" id="como" aria-labelledby="como-t">
+    <div class="k">/como-descargar</div>
+    <h2 id="como-t">¿Cómo descargo mi paquete?</h2>
+    <ol class="pasos">
+      <li>
+        <span class="n">1</span>
+        <h3>Busca tu logo</h3>
+        <p>Encuéntralo en la lista o escribe el nombre de tu emprendimiento en el buscador. Toca <b>Abrir en Drive</b>.</p>
+      </li>
+      <li>
+        <span class="n">2</span>
+        <h3>Entra con tu correo</h3>
+        <p>Inicia sesión en Google con <b>el mismo correo que registraste</b> en el programa. Solo ese correo tiene acceso a tu carpeta.</p>
+      </li>
+      <li>
+        <span class="n">3</span>
+        <h3>Descarga todo</h3>
+        <p>En la carpeta toca los tres puntos <b>⋮</b> y elige <b>Descargar</b>. Drive te entrega todas las piezas en un archivo .zip.</p>
+      </li>
+    </ol>
+
+    <div class="ayuda">
+      <div class="ayuda-t">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>
+        <h3>¿Te aparece “Necesitas acceso”?</h3>
+      </div>
+      <ul>
+        <li><b>Revisa la cuenta.</b> Lo más común es tener abierto otro Gmail. En el celular toca tu foto arriba a la derecha en Drive y cambia al correo que registraste.</li>
+        <li><b>No pidas acceso con otro correo.</b> La solicitud nos llega a nombre de esa cuenta y no podremos identificarte.</li>
+        <li><b>¿Sigue sin abrir?</b> <span id="contacto">Escríbele a tu instructor o gestor del programa y dile el nombre de tu emprendimiento y tu correo.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <span>Cada paquete se comparte solo con el correo de su emprendedor.</span>
+      <span>ICI.lab · Laboratorio de Innovación y Emprendimiento Agroempresarial · SENA</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   LISTA DE EMPRENDIMIENTOS (datos de ejemplo — reemplazar)
+   nombre:  nombre del emprendimiento
+   sector:  a qué se dedica
+   drive:   enlace a la carpeta de Google Drive ("" = en preparación)
+   logo:    ruta de la imagen, ej. "img/logos/cafe.png" (opcional; si falta, se usan las iniciales)
+   color:   color del monograma cuando no hay logo
+   piezas:  lo que incluye el paquete
+   ============================================================ */
+const EMPRENDIMIENTOS = [
+  { nombre:"Café La Montaña", sector:"Café de origen", drive:"https://drive.google.com/", color:"#6b3f1f",
+    piezas:["Logo PNG/PDF","12 posts","4 historias","Portada FB"] },
+  { nombre:"Arepas Doña Rosa", sector:"Gastronomía", drive:"https://drive.google.com/", color:"#c2410c",
+    piezas:["10 posts","Menú digital","Plantillas historias"] },
+  { nombre:"Tejidos Wayuu Kasa", sector:"Artesanías", drive:"https://drive.google.com/", color:"#9d174d",
+    piezas:["Manual de marca","8 posts","Catálogo PDF"] },
+  { nombre:"Verde Huerta", sector:"Agricultura orgánica", drive:"", color:"#3f7d20",
+    piezas:["Logo","Paleta de color","6 posts"] },
+  { nombre:"Bici Andina", sector:"Turismo y ciclismo", drive:"https://drive.google.com/", color:"#1d4ed8",
+    piezas:["12 posts","Reel","Portada YouTube"] },
+  { nombre:"Dulce Panela", sector:"Agroindustria", drive:"", color:"#a16207",
+    piezas:["Etiqueta","8 posts","Tarjeta"] },
+];
+
+/* CONTACTO para quien no pueda abrir su paquete ("" = no se muestra)
+   whatsapp: número con indicativo, ej. "573001234567"
+   correo:   correo del laboratorio */
+const CONTACTO = { whatsapp:"", correo:"" };
+
+const $ = s => document.querySelector(s);
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const plano = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+const slug = s => plano(s).replace(/[^a-z0-9]+/g,"-");
+const iniciales = n => n.split(/\s+/).filter(w => w.length > 2 || /^[A-ZÁÉÍÓÚÑ]/.test(w)).slice(0,2).map(w => w[0]).join("").toUpperCase();
+const mark = e => e.logo
+  ? `<span class="mark"><img src="${esc(e.logo)}" alt="Logo de ${esc(e.nombre)}"></span>`
+  : `<span class="mark" style="background:linear-gradient(135deg,${esc(e.color || "#0a7cc2")},#04374f)" aria-hidden="true">${esc(iniciales(e.nombre))}</span>`;
+const listos = EMPRENDIMIENTOS.filter(e => e.drive).length;
+
+/* Cinta */
+const chips = EMPRENDIMIENTOS.map(e => {
+  const href = e.drive ? `href="${esc(e.drive)}" target="_blank" rel="noopener"` : `href="#e-${slug(e.nombre)}"`;
+  return `<a class="chip" ${href}>${mark(e)}${esc(e.nombre)}</a>`;
+}).join("");
+$("#track").innerHTML = chips + chips.replace(/<a /g, '<a aria-hidden="true" tabindex="-1" ');
+
+/* Tarjetas */
+function render(q = ""){
+  const t = plano(q).trim();
+  const lista = EMPRENDIMIENTOS.map((e,i) => ({...e, n:i+1})).filter(e => !t || plano(e.nombre + " " + e.sector).includes(t));
+  $("#count").innerHTML = `${EMPRENDIMIENTOS.length} emprendimientos · <b>${listos} paquetes listos</b>`;
+  $("#grid").innerHTML = lista.length ? lista.map(e => `
+    <article class="card" id="e-${slug(e.nombre)}">
+      <div class="id"><span>PKG_${String(e.n).padStart(2,"0")}</span><span>${esc(plano(e.sector).replace(/\s+/g,"_"))}</span></div>
+      <div class="card-head">${mark(e)}<div style="min-width:0"><h3>${esc(e.nombre)}</h3><div class="sector">${esc(e.sector)}</div></div></div>
+      <ul class="items">${(e.piezas||[]).map(p => `<li>${esc(p)}</li>`).join("")}</ul>
+      <div class="foot">
+        ${e.drive
+          ? `<span class="status ok">listo · privado</span><a class="btn" href="${esc(e.drive)}" target="_blank" rel="noopener" title="Ábrelo con el correo que registraste">
+               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Abrir en Drive
+               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>`
+          : `<span class="status wait">en preparación</span><span class="btn off">Próximamente</span>`}
+      </div>
+    </article>`).join("")
+    : `<p class="empty">// sin resultados para “${esc(q)}”</p>`;
+}
+render();
+$("#q").addEventListener("input", e => render(e.target.value));
+
+/* Contacto de ayuda */
+if (CONTACTO.whatsapp || CONTACTO.correo){
+  const partes = [];
+  if (CONTACTO.whatsapp){
+    const num = CONTACTO.whatsapp.replace(/\D/g, "");
+    const msg = encodeURIComponent("Hola, no puedo abrir el paquete de mi emprendimiento en la landing de Pass.inn.");
+    partes.push(`por WhatsApp al <a href="https://wa.me/${num}?text=${msg}" target="_blank" rel="noopener">+${esc(num)}</a>`);
+  }
+  if (CONTACTO.correo)
+    partes.push(`al correo <b class="sel">${esc(CONTACTO.correo)}</b><button class="copiar" type="button" id="copiar">copiar</button>`);
+  $("#contacto").innerHTML = `Escríbenos ${partes.join(" o ")} con el nombre de tu emprendimiento y tu correo.`;
+  $("#copiar")?.addEventListener("click", async e => {
+    try { await navigator.clipboard.writeText(CONTACTO.correo); e.target.textContent = "copiado"; }
+    catch { getSelection().selectAllChildren($(".sel")); e.target.textContent = "seleccionado"; }
+  });
+}
+
+/* Brillo que sigue al cursor + inclinación 3D */
+const grid = $("#grid");
+grid.addEventListener("pointermove", ev => {
+  const c = ev.target.closest(".card"); if (!c) return;
+  const r = c.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top;
+  c.style.setProperty("--mx", x + "px"); c.style.setProperty("--my", y + "px");
+  if (!reduce && ev.pointerType === "mouse")
+    c.style.transform = `rotateX(${(.5 - y / r.height) * 7}deg) rotateY(${(x / r.width - .5) * 7}deg) translateY(-3px)`;
+});
+grid.addEventListener("pointerout", ev => {
+  const c = ev.target.closest(".card");
+  if (c && !c.contains(ev.relatedTarget)) c.style.transform = "";
+});
+
+/* Texto que se decodifica */
+const palabras = ["Idea_", "Innova_", "Crece_"];
+const glifos = "01<>/{}#$%&*+=?";
+let pi = 0;
+function decodificar(){
+  const el = $("#dec"), meta = palabras[pi = (pi + 1) % palabras.length];
+  let f = 0;
+  const tick = () => {
+    el.textContent = meta.split("").map((ch, i) => i < f / 2 ? ch : glifos[Math.random() * glifos.length | 0]).join("");
+    if (++f <= meta.length * 2) requestAnimationFrame(tick);
+  };
+  tick();
+}
+setInterval(() => reduce ? ($("#dec").textContent = palabras[pi = (pi + 1) % palabras.length]) : decodificar(), 2800);
+
+/* Contador de paquetes */
+const objetivo = Math.round(listos / EMPRENDIMIENTOS.length * 100);
+let v = reduce ? objetivo : 0;
+(function sube(){ $("#pct").textContent = `paquetes: ${v}%`; if (v < objetivo){ v++; setTimeout(sube, 18); } })();
+
+/* Red de partículas */
+(() => {
+  const cv = $("#net"), ctx = cv.getContext("2d");
+  const colores = ["#fcd40c", "#5fc12a", "#0a7cc2", "#8fd12b"];
+  let w, h, dpr, pts = [], mouse = {x:-999, y:-999};
+  function size(){
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    w = cv.width = innerWidth * dpr; h = cv.height = innerHeight * dpr;
+    const n = Math.min(90, Math.round(innerWidth * innerHeight / 16000));
+    pts = Array.from({length:n}, () => ({x:Math.random()*w, y:Math.random()*h,
+      vx:(Math.random()-.5)*.35*dpr, vy:(Math.random()-.5)*.35*dpr, c:colores[Math.random()*4|0], r:(Math.random()*1.6+.8)*dpr}));
+  }
+  addEventListener("resize", size); size();
+  /* Estela del cursor y explosiones */
+  const chispas = [];
+  function chispa(x, y, fuerza){
+    const a = Math.random() * Math.PI * 2, v = (Math.random() * fuerza + .3) * dpr;
+    chispas.push({x:x*dpr, y:y*dpr, vx:Math.cos(a)*v, vy:Math.sin(a)*v - .4*dpr, vida:1,
+      dec:.012 + Math.random()*.02, r:(Math.random()*2.2 + 1)*dpr, c:colores[Math.random()*4|0], cruz:Math.random() < .18});
+  }
+  let ult = 0;
+  addEventListener("pointermove", e => {
+    mouse.x = e.clientX * dpr; mouse.y = e.clientY * dpr;
+    if (reduce) return;
+    const ahora = performance.now();
+    if (ahora - ult > 16){ ult = ahora; for (let i = 0; i < 3; i++) chispa(e.clientX, e.clientY, 1.2); }
+  });
+  window.explosion = (x, y) => { if (!reduce) for (let i = 0; i < 60; i++) chispa(x, y, 5); };
+  const lim = () => 140 * dpr;
+  function frame(){
+    ctx.clearRect(0,0,w,h);
+    for (let i = chispas.length - 1; i >= 0; i--){
+      const s = chispas[i];
+      s.x += s.vx; s.y += s.vy; s.vx *= .96; s.vy = s.vy * .96 + .03 * dpr; s.vida -= s.dec;
+      if (s.vida <= 0){ chispas.splice(i, 1); continue; }
+      ctx.globalAlpha = s.vida; ctx.fillStyle = ctx.strokeStyle = s.c; ctx.shadowColor = s.c; ctx.shadowBlur = 12 * dpr;
+      if (s.cruz){ const k = s.r * 2.2; ctx.lineWidth = dpr; ctx.beginPath();
+        ctx.moveTo(s.x - k, s.y); ctx.lineTo(s.x + k, s.y); ctx.moveTo(s.x, s.y - k); ctx.lineTo(s.x, s.y + k); ctx.stroke(); }
+      else { ctx.beginPath(); ctx.arc(s.x, s.y, s.r * s.vida, 0, 7); ctx.fill(); }
+    }
+    ctx.globalAlpha = 1;
+    for (const p of pts){
+      if (!reduce){ p.x += p.vx; p.y += p.vy; }
+      if (p.x < 0 || p.x > w) p.vx *= -1;
+      if (p.y < 0 || p.y > h) p.vy *= -1;
+      const dx = p.x - mouse.x, dy = p.y - mouse.y, d = Math.hypot(dx, dy);
+      if (d < 120 * dpr && !reduce){ p.x += dx / d * 1.2; p.y += dy / d * 1.2; }
+    }
+    for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++){
+      const a = pts[i], b = pts[j], d = Math.hypot(a.x - b.x, a.y - b.y);
+      if (d < lim()){ ctx.strokeStyle = `rgba(120,200,240,${(1 - d / lim()) * .22})`; ctx.lineWidth = dpr * .7;
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
+    }
+    for (const p of pts){ ctx.fillStyle = p.c; ctx.shadowColor = p.c; ctx.shadowBlur = 8 * dpr;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill(); }
+    ctx.shadowBlur = 0;
+    if (!reduce) requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+/* Mascota: cambia de pose como fotogramas y tiene una rutina de pequeñas acciones */
+(() => {
+  const pet = $("#pet"), mov = $("#mov"), say = $("#say");
+  const poses = Object.fromEntries([...pet.querySelectorAll(".pose")].map(i => [i.dataset.p, i]));
+  const espera = ms => new Promise(r => setTimeout(r, ms));
+  let actual = "frente", ocupada = false;
+
+  function pose(p){
+    if (p === actual) return;
+    poses[actual].classList.remove("on"); poses[p].classList.add("on"); actual = p;
+  }
+  function mover(cls){
+    return new Promise(res => {
+      mov.classList.remove("hop", "salta", "vuela", "baila"); void mov.offsetWidth; mov.classList.add(cls);
+      mov.addEventListener("animationend", function fin(e){
+        if (e.target !== mov) return;
+        mov.removeEventListener("animationend", fin); mov.classList.remove(cls); res();
+      });
+    });
+  }
+  const frases = [
+    "¡Hola, emprendedor! 👋",
+    "Busca tu logo y haz clic",
+    "Tu paquete está en Drive",
+    "¡Bienvenido a ICI.lab!",
+    "Pasaporte a la innovación ✈",
+    "¿Ya descargaste tus piezas?",
+  ];
+  let fi = -1, tHablar;
+  function hablar(txt){
+    say.textContent = txt ?? frases[fi = (fi + 1) % frases.length];
+    say.classList.add("on");
+    clearTimeout(tHablar); tHablar = setTimeout(() => say.classList.remove("on"), 2600);
+  }
+
+  /* Acciones */
+  const acciones = {
+    async mirar(){ pose("izq"); await espera(700); pose("der"); await espera(700); pose("frente"); },
+    async girar(){ for (const p of ["der", "lado", "espalda", "lado-izq", "izq", "frente"]){ pose(p); await espera(170); } },
+    async saltitos(){ pose("frente"); await mover("hop"); },
+    async guino(){ pose("guino"); hablar(); await espera(1400); pose("frente"); },
+    async baile(){ pose("der"); const m = mover("baila");
+      for (let i = 0; i < 4; i++){ await espera(200); pose(i % 2 ? "der" : "izq"); } await m; pose("frente"); },
+    async volar(){ pose("vuelo"); await mover("vuela"); pose("frente"); await mover("hop"); },
+  };
+  async function hacer(nombre){
+    if (ocupada) return; ocupada = true;
+    try { await acciones[nombre](); } finally { ocupada = false; }
+  }
+
+  pet.addEventListener("animationend", e => { if (e.target === pet) pet.style.animation = "none"; });
+  pet.addEventListener("click", async () => {
+    const r = pet.getBoundingClientRect();
+    window.explosion?.(r.left + r.width / 2, r.top + r.height * .45);
+    if (ocupada) return;
+    ocupada = true; hablar("¡Allá voy! 🦜");
+    try { await acciones.volar(); } finally { ocupada = false; }
+  });
+  pet.addEventListener("pointerenter", () => { if (!ocupada) hacer("guino"); });
+
+  if (reduce){ setTimeout(() => hablar(frases[0]), 400); return; }
+
+  /* Mira hacia el cursor cuando está quieta */
+  let tx = 0, ty = 0, cx = 0, cy = 0;
+  addEventListener("pointermove", e => {
+    const r = pet.getBoundingClientRect(), dx = e.clientX - (r.left + r.width / 2);
+    tx = Math.max(-1, Math.min(1, dx / 500));
+    ty = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height / 2)) / 500));
+    if (!ocupada && ["frente", "izq", "der"].includes(actual))
+      pose(dx < -160 ? "izq" : dx > 160 ? "der" : "frente");
+  });
+  (function seguir(){
+    cx += (tx - cx) * .08; cy += (ty - cy) * .08;
+    if (getComputedStyle(pet).animationName === "none")
+      pet.style.transform = `translate(${cx * 12}px,${cy * 8}px) rotate(${cx * 5}deg)`;
+    requestAnimationFrame(seguir);
+  })();
+
+  /* Rutina: cada pocos segundos hace algo distinto */
+  const rutina = ["mirar", "saltitos", "girar", "guino", "baile", "mirar", "volar", "girar", "saltitos", "guino"];
+  let ri = 0;
+  setTimeout(async () => { hablar(frases[0]); await hacer("saltitos"); }, 1500);
+  (async function ciclo(){
+    await espera(5000 + Math.random() * 3000);
+    if (!document.hidden) hacer(rutina[ri++ % rutina.length]);
+    ciclo();
+  })();
+})();
+</script>
+</body>
+</html>
