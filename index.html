@@ -357,6 +357,10 @@ const EMPRENDIMIENTOS = [
     drive:"https://drive.google.com/drive/folders/1-gOYN4twwpkvrMzh-0JkJPv6k3GHzTlH?usp=drive_link",
     logo:"img/logos/apinany.png", fondo:"#48321f",
     piezas:["Plantilla para reels","Carrusel","Historias","Tienda virtual en Canva","Parrilla de contenidos"] },
+  { nombre:"Carnes Samari", sector:"Carnes de cerdo y carnero · Cascajal", color:"#5c3b2a",
+    drive:"https://drive.google.com/drive/folders/1EMTu5Oz_lbsY0ml0a8ua1csWkZE55bmk?usp=sharing",
+    logo:"img/logos/carnes-samari.png",
+    piezas:["Plantilla para reels","Carrusel","Historias","Tienda virtual en Canva","Parrilla de contenidos"] },
 ];
 
 /* CONTACTO para quien no pueda abrir su paquete ("" = no se muestra)
@@ -393,7 +397,7 @@ function render(q = ""){
   $("#count").innerHTML = `${EMPRENDIMIENTOS.length} emprendimientos · <b>${listos} paquetes listos</b>`;
   $("#grid").innerHTML = lista.length ? lista.map(e => `
     <article class="card" id="e-${slug(e.nombre)}">
-      <div class="id"><span>PKG_${String(e.n).padStart(2,"0")}</span><span>${esc(plano(e.sector).replace(/\s+/g,"_"))}</span></div>
+      <div class="id"><span>PKG_${String(e.n).padStart(2,"0")}</span><span>${esc(plano(e.sector).replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,""))}</span></div>
       <div class="card-head">${mark(e)}<div style="min-width:0"><h3>${esc(e.nombre)}</h3><div class="sector">${esc(e.sector)}</div></div></div>
       <ul class="items">${(e.piezas||[]).map(p => `<li>${esc(p)}</li>`).join("")}</ul>
       <div class="foot">
