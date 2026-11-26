@@ -1,3 +1,6 @@
 .DS_Store
 *.swp
 .claude/
+Claude outputs/
+fadelac-canva/
+*-canva/

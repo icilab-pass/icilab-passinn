@@ -165,7 +165,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   background:radial-gradient(260px circle at var(--mx) var(--my),#fcd40c,#5fc12a 40%,transparent 70%);
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
 .card:hover::before,.card:hover::after{opacity:1}
-.id{font-family:var(--mono);font-size:.7rem;color:var(--dim);display:flex;justify-content:space-between}
+.id{font-family:var(--mono);font-size:.7rem;color:var(--dim);display:flex;justify-content:space-between;gap:12px;min-width:0}
+.id span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .card-head{display:flex;gap:14px;align-items:center;min-width:0}
 .card .mark{width:62px;height:62px;font-size:1.3rem;border-radius:16px;box-shadow:0 0 0 1px rgba(255,255,255,.15),0 8px 24px -8px rgba(0,0,0,.6)}
 .card h3{font-size:1.15rem;font-weight:700;line-height:1.15}
@@ -361,6 +362,10 @@ const EMPRENDIMIENTOS = [
     drive:"https://drive.google.com/drive/folders/1EMTu5Oz_lbsY0ml0a8ua1csWkZE55bmk?usp=sharing",
     logo:"img/logos/carnes-samari.png",
     piezas:["Plantilla para reels","Carrusel","Historias","Tienda virtual en Canva","Parrilla de contenidos"] },
+  { nombre:"Fadelac", sector:"Lácteos · Yogurt griego, artesanal y congelados", color:"#0a1c5c",
+    drive:"",
+    logo:"img/logos/fadelac.png", fondo:"#03155d",
+    piezas:["Plantilla para reels","Carrusel","Historias","Tienda virtual en Canva","Parrilla de contenidos"] },
 ];
 
 /* CONTACTO para quien no pueda abrir su paquete ("" = no se muestra)
@@ -397,7 +402,7 @@ function render(q = ""){
   $("#count").innerHTML = `${EMPRENDIMIENTOS.length} emprendimientos · <b>${listos} paquetes listos</b>`;
   $("#grid").innerHTML = lista.length ? lista.map(e => `
     <article class="card" id="e-${slug(e.nombre)}">
-      <div class="id"><span>PKG_${String(e.n).padStart(2,"0")}</span><span>${esc(plano(e.sector).replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,""))}</span></div>
+      <div class="id"><span>PKG_${String(e.n).padStart(2,"0")}</span><span>${esc(plano(e.sector.split("·")[0]).replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,""))}</span></div>
       <div class="card-head">${mark(e)}<div style="min-width:0"><h3>${esc(e.nombre)}</h3><div class="sector">${esc(e.sector)}</div></div></div>
       <ul class="items">${(e.piezas||[]).map(p => `<li>${esc(p)}</li>`).join("")}</ul>
       <div class="foot">
